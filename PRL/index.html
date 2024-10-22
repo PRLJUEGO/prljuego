@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rosco PRL</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #e9f5fc;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            color: #333;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            font-size: 50px;
+            color: #333;
+        }
+
+        #menu {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #menu button {
+            padding: 15px 35px;
+            margin: 15px;
+            font-size: 20px;
+            border: none;
+            background-color: #ff6f61;
+            color: white;
+            cursor: pointer;
+            border-radius: 50px;
+            transition: background-color 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        #menu button:hover {
+            background-color: #ff3e30;
+        }
+
+        /* Estilos para los botones de Discord y YouTube */
+        .social-button {
+            padding: 15px 35px;
+            margin: 15px;
+            font-size: 20px;
+            border: none;
+            color: white;
+            cursor: pointer;
+            border-radius: 50px;
+            transition: background-color 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .discord-button {
+            background-color: #7289da;
+        }
+
+        .discord-button:hover {
+            background-color: #5b6eae;
+        }
+
+        .youtube-button {
+            background-color: #ff0000;
+        }
+
+        .youtube-button:hover {
+            background-color: #cc0000;
+        }
+
+        #container {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+            position: relative;
+        }
+
+        #credits {
+            display: none;
+            text-align: center;
+        }
+
+        #credits h2 {
+            font-size: 32px;
+            margin-bottom: 20px;
+        }
+
+        #credits p {
+            font-size: 20px;
+        }
+
+        body:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, #e0f7fa, #00acc1);
+            z-index: -1;
+        }
+
+        #rosco {
+            position: relative;
+            width: 500px;
+            height: 500px;
+            margin-bottom: 20px;
+            background: radial-gradient(circle, #ffffff, #eeeeee);
+            border-radius: 50%;
+            box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .letter {
+            width: 55px;
+            height: 55px;
+            background-color: #007bff;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 22px;
+            position: absolute;
+            transform-origin: 220px 220px;
+            transition: background-color 0.3s ease;
+            box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        .letter.correct {
+            background-color: #28a745 !important;
+        }
+
+        .letter.incorrect {
+            background-color: #dc3545 !important;
+        }
+
+        #question {
+            font-size: 22px;
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        #controls {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        #controls button {
+            padding: 15px 30px;
+            margin: 10px;
+            font-size: 18px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        #controls button:hover {
+            background-color: #0056b3;
+        }
+
+        #controls button.correct {
+            background-color: #28a745;
+        }
+
+        #controls button.wrong {
+            background-color: #dc3545;
+        }
+
+        #timer {
+            font-size: 26px;
+            font-weight: bold;
+            margin: 10px 0;
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="menu">
+        <h1>Rosco PRL</h1>
+
+        <!-- Botones de Discord y YouTube -->
+        <button onclick="startGame()">Empezar</button>
+        <button onclick="showCredits()">Créditos</button>
+
+        <button class="social-button discord-button" onclick="joinDiscord()">Discord</button>
+        <button class="social-button youtube-button" onclick="openYouTube()">YouTube</button>
+
+    </div>
+
+    <div id="credits">
+        <h2>Créditos</h2>
+        <p>Desarrollado por: Abel</p>
+        <button onclick="goBack()">Volver</button>
+    </div>
+
+    <div id="container">
+        <div id="timer">Tiempo: <span id="time">60</span> segundos</div>
+        <div id="rosco"></div>
+        <p id="question"></p>
+        <div id="controls">
+            <button id="option1" onclick="checkAnswer(1)">Opción 1</button>
+            <button id="option2" onclick="checkAnswer(2)">Opción 2</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = {
+            A: { question: "Acción que implica peligro para el trabajador.", correct: "Accidente", incorrect: "Adaptación" },
+            B: { question: "Lugar de trabajo donde se desarrollan actividades peligrosas.", correct: "Barricada", incorrect: "Banco" },
+            C: { question: "Dispositivo para prevenir accidentes en la maquinaria.", correct: "Cortacircuitos", incorrect: "Comodidad" },
+            D: { question: "Documento que identifica riesgos y medidas preventivas.", correct: "Documento de evaluación", incorrect: "Disposición" },
+            E: { question: "Equipo utilizado para proteger a los trabajadores.", correct: "Equipo de protección", incorrect: "Estandarización" },
+            F: { question: "Dispositivo que reduce la probabilidad de una caída.", correct: "Freno de seguridad", incorrect: "Facilidad" },
+            G: { question: "Sustancia que puede provocar enfermedades profesionales por inhalación.", correct: "Gases tóxicos", incorrect: "Guantes" },
+            H: { question: "Conjunto de acciones para reducir los riesgos en el entorno laboral.", correct: "Higiene industrial", incorrect: "Herramientas" },
+            I: { question: "Instrumento utilizado para medir el nivel de ruido en el ambiente laboral.", correct: "Sonómetro", incorrect: "Iluminación" },
+            J: { question: "Elemento importante en la ergonomía para evitar lesiones por sobreesfuerzo.", correct: "Jornada de descanso", incorrect: "Jardinería" },
+            K: { question: "Acción de revisar periódicamente los equipos de protección personal.", correct: "Kit de inspección", incorrect: "Kilometraje" },
+            L: { question: "Técnica correcta para levantar cargas pesadas sin riesgo.", correct: "Levante seguro", incorrect: "Límite de fuerza" },
+            M: { question: "Equipo de protección utilizado ante la presencia de sustancias tóxicas en el aire.", correct: "Máscara de gas", incorrect: "Manual de trabajo" },
+            N: { question: "Conjunto de reglas y regulaciones para garantizar la seguridad laboral.", correct: "Normativa", incorrect: "Negligencia" },
+            O: { question: "Responsabilidad del empleador para garantizar la seguridad de sus trabajadores.", correct: "Observación de riesgos", incorrect: "Omisión" },
+            P: { question: "Equipo de protección ante la exposición a productos químicos peligrosos.", correct: "Protección química", incorrect: "Precaución" },
+            Q: { question: "Proceso para verificar el estado de las instalaciones eléctricas.", correct: "Chequeo de conexiones", incorrect: "Quemaduras" },
+            R: { question: "Acción que se lleva a cabo en caso de accidente grave.", correct: "Rescate", incorrect: "Reducción" },
+            S: { question: "Medida preventiva para evitar caídas en trabajos en altura.", correct: "Sistema de seguridad", incorrect: "Sobrecarga" },
+            T: { question: "Factor de riesgo relacionado con el exceso de trabajo.", correct: "Tensión laboral", incorrect: "Tasa de incidencia" },
+            U: { question: "Instrumento de medición utilizado en ambientes laborales para monitorear condiciones.", correct: "Unidad de medida", incorrect: "Ubicación" },
+            V: { question: "Proceso que consiste en revisar la seguridad de una instalación.", correct: "Verificación", incorrect: "Ventilación" },
+            W: { question: "Forma insegura de trabajar que genera riesgos.", correct: "Work unsafe", incorrect: "Windows" },
+            X: { question: "Exposición a condiciones extremas que pueden afectar la salud.", correct: "Xenón", incorrect: "Xilografía" },
+            Y: { question: "Acción de evaluar y mejorar las condiciones de trabajo.", correct: "Inspección", incorrect: "Yema" },
+            Z: { question: "Área delimitada para garantizar la seguridad en el lugar de trabajo.", correct: "Zona segura", incorrect: "Zona de peligro" }
+        };
+
+        let currentLetterIndex = 0;
+        let letters = [];
+
+        function startGame() {
+            document.getElementById("menu").style.display = "none";
+            document.getElementById("container").style.display = "flex";
+            createRosco();
+            showNextQuestion();
+        }
+
+        function showCredits() {
+            document.getElementById("menu").style.display = "none";
+            document.getElementById("credits").style.display = "block";
+        }
+
+        function goBack() {
+            document.getElementById("credits").style.display = "none";
+            document.getElementById("menu").style.display = "flex";
+        }
+
+        function createRosco() {
+            const roscoContainer = document.getElementById("rosco");
+            roscoContainer.innerHTML = '';  // Limpiar el rosco
+
+            const lettersArray = Object.keys(questions);
+            const numLetters = lettersArray.length;
+            const angleStep = 360 / numLetters;  // Angulo entre las letras
+
+            lettersArray.forEach((letter, index) => {
+                const letterElement = document.createElement("div");
+                letterElement.className = "letter";
+                letterElement.textContent = letter;
+                
+                // Calcular posición angular para cada letra
+                const angle = index * angleStep;
+                letterElement.style.transform = `rotate(${angle}deg) translate(220px) rotate(-${angle}deg)`;
+
+                roscoContainer.appendChild(letterElement);
+                letters.push(letterElement);
+            });
+        }
+
+        function showNextQuestion() {
+            const lettersArray = Object.keys(questions);
+            const currentLetter = lettersArray[currentLetterIndex];
+            const currentQuestion = questions[currentLetter];
+
+            // Mostrar la pregunta
+            document.getElementById("question").textContent = currentQuestion.question;
+
+            // Generar aleatoriedad para las opciones
+            const options = shuffleOptions(currentQuestion.correct, currentQuestion.incorrect);
+            document.getElementById("option1").textContent = options[0];
+            document.getElementById("option2").textContent = options[1];
+        }
+
+        function shuffleOptions(correct, incorrect) {
+            // Función para barajar las respuestas
+            return Math.random() > 0.5 ? [correct, incorrect] : [incorrect, correct];
+        }
+
+        function checkAnswer(selectedOption) {
+            const lettersArray = Object.keys(questions);
+            const currentLetter = lettersArray[currentLetterIndex];
+            const currentQuestion = questions[currentLetter];
+            const selectedButton = document.getElementById(`option${selectedOption}`);
+
+            if (selectedButton.textContent === currentQuestion.correct) {
+                letters[currentLetterIndex].classList.add("correct");
+            } else {
+                letters[currentLetterIndex].classList.add("incorrect");
+            }
+
+            currentLetterIndex++;
+            if (currentLetterIndex < lettersArray.length) {
+                showNextQuestion();
+            } else {
+                alert("¡Juego terminado!");
+            }
+        }
+
+        // Funciones para los botones sociales
+        function joinDiscord() {
+            window.open("https://discord.gg/vcXqqSdU6c", "_blank");
+        }
+
+        function openYouTube() {
+            window.open("https://www.youtube.com/@MBPSHOP", "_blank");
+        }
+    </script>
+
+</body>
+</html>
